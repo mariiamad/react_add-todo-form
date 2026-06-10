@@ -28,15 +28,9 @@ const initialTodos: Todo[] = todosFromServer.map(todo => ({
   user: getUserById(todo.userId),
 }));
 
-function getNewTodoId(todos: Todo[]) {
-  const maxId = Math.max(...todos.map(todo => todo.id));
-
-  return maxId + 1;
-}
-
 export const App: React.FC = () => {
   const [title, setTitle] = useState('');
-  const [hasTitleError, sethasTitleError] = useState(false);
+  const [hasTitleError, setHasTitleError] = useState(false);
 
   const [userId, setUserId] = useState(0);
   const [hasUserIdError, setHasUserIdError] = useState(false);
@@ -44,18 +38,20 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
 
   const addTodo = (todo: Todo) => {
-    const newTodo = {
-      ...todo,
-      id: getNewTodoId(todos),
-    };
+    setTodos(currentTodos => {
+      const newTodo = {
+        ...todo,
+        id: Math.max(...currentTodos.map(t => t.id)) + 1,
+      };
 
-    setTodos(currentTodos => [...currentTodos, newTodo]);
+      return [...currentTodos, newTodo];
+    });
   };
 
   const handleSubmit = (eventSubmit: React.FormEvent) => {
     eventSubmit.preventDefault();
 
-    sethasTitleError(!title.trim());
+    setHasTitleError(!title.trim());
     setHasUserIdError(!userId);
 
     if (!title.trim() || !userId) {
@@ -63,7 +59,7 @@ export const App: React.FC = () => {
     }
 
     const newTodo: Todo = {
-      id: getNewTodoId(todos),
+      id: 0,
       title,
       userId,
       completed: false,
@@ -74,7 +70,7 @@ export const App: React.FC = () => {
 
     setTitle('');
     setUserId(0);
-    sethasTitleError(false);
+    setHasTitleError(false);
     setHasUserIdError(false);
   };
 
@@ -82,7 +78,7 @@ export const App: React.FC = () => {
     eventChange: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setTitle(eventChange.target.value);
-    sethasTitleError(false);
+    setHasTitleError(false);
   };
 
   const handleUserIdChange = (
